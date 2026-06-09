@@ -218,6 +218,15 @@
                                 </StackPanel>
                             </Button>
 
+                            <Button x:Name="btnNavMultimetro"
+                                    Style="{StaticResource BtnNav}"
+                                    Click="NavMultimetro_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="⏱" FontSize="13" Margin="0,0,10,0"/>
+                                    <TextBlock Text="Multímetro" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
                             <Button x:Name="btnNavReportes"
                                     Style="{StaticResource BtnNav}"
                                     Click="NavReportes_Click">
@@ -1296,6 +1305,145 @@
                 </ScrollViewer>
 
                 <!-- ══════════════════════════════════
+                     PAGE 6: MULTÍMETRO DIGITAL
+                ══════════════════════════════════ -->
+                <ScrollViewer x:Name="pageMultimetro"
+                              Grid.Row="1"
+                              Visibility="Collapsed"
+                              Background="#0D1117"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="20,18,20,24">
+
+                        <Border Background="#08140F"
+                                BorderBrush="#1A3A28"
+                                BorderThickness="1"
+                                CornerRadius="12"
+                                Padding="20"
+                                Margin="0,0,0,16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="⏱ Multímetro Digital — Lectura en Tiempo Real"
+                                               FontSize="15" FontWeight="Bold"
+                                               Foreground="#32A76B"
+                                               FontFamily="Segoe UI"/>
+                                    <TextBlock x:Name="lblMeterUpdated"
+                                               Text="Esperando lectura..."
+                                               FontSize="11"
+                                               Foreground="#4A6055"
+                                               FontFamily="Segoe UI"
+                                               Margin="0,6,0,0"/>
+                                </StackPanel>
+                                <Button Grid.Column="1"
+                                        Content="↻  Nueva lectura"
+                                        Height="34" Width="150"
+                                        Cursor="Hand"
+                                        Click="BtnMeterRefresh_Click"
+                                        Style="{StaticResource BtnGhost}"
+                                        VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock Text="POTENCIA ACTUAL" FontSize="10" FontWeight="SemiBold"
+                                               Foreground="#4A6055" FontFamily="Segoe UI"/>
+                                    <TextBlock x:Name="lblMeterWatts" Text="— W" FontSize="30"
+                                               FontWeight="Black" Foreground="#32A76B"
+                                               FontFamily="Segoe UI Black"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock Text="CORRIENTE" FontSize="10" FontWeight="SemiBold"
+                                               Foreground="#4A6055" FontFamily="Segoe UI"/>
+                                    <TextBlock x:Name="lblMeterAmps" Text="— A" FontSize="30"
+                                               FontWeight="Black" Foreground="#308BB1"
+                                               FontFamily="Segoe UI Black"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="4" Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock Text="VOLTAJE PROMEDIO" FontSize="10" FontWeight="SemiBold"
+                                               Foreground="#4A6055" FontFamily="Segoe UI"/>
+                                    <TextBlock x:Name="lblMeterVolts" Text="— V" FontSize="30"
+                                               FontWeight="Black" Foreground="#F39C12"
+                                               FontFamily="Segoe UI Black"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="6" Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock Text="FACTURA ESTIMADA" FontSize="10" FontWeight="SemiBold"
+                                               Foreground="#4A6055" FontFamily="Segoe UI"/>
+                                    <TextBlock x:Name="lblMeterBill" Text="$ —" FontSize="30"
+                                               FontWeight="Black" Foreground="#E91E63"
+                                               FontFamily="Segoe UI Black"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.3*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock Text="Desglose de consumo actual"
+                                               FontSize="14" FontWeight="SemiBold"
+                                               Foreground="#C8CCCA"
+                                               FontFamily="Segoe UI"
+                                               Margin="0,0,0,14"/>
+                                    <StackPanel x:Name="meterDevicePanel"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="2" Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock Text="Predicción de fin de mes"
+                                               FontSize="14" FontWeight="SemiBold"
+                                               Foreground="#C8CCCA"
+                                               FontFamily="Segoe UI"
+                                               Margin="0,0,0,12"/>
+                                    <TextBlock x:Name="lblMeterForecast"
+                                               Text="La estimación se calcula con el promedio diario de los 200 registros históricos y la tarifa configurada."
+                                               FontSize="12"
+                                               Foreground="#7D8590"
+                                               FontFamily="Segoe UI"
+                                               TextWrapping="Wrap"/>
+                                    <Rectangle Height="1" Fill="#1C2128" Margin="0,16,0,16"/>
+                                    <TextBlock Text="ALGORITMO"
+                                               FontSize="10" FontWeight="SemiBold"
+                                               Foreground="#4A6055" FontFamily="Segoe UI"
+                                               Margin="0,0,0,6"/>
+                                    <TextBlock Text="Promedio diario histórico × días del mes × tarifa COP/kWh. La lectura actual usa variación aleatoria controlada sobre el promedio por dispositivo."
+                                               FontSize="11"
+                                               Foreground="#4A6055"
+                                               FontFamily="Segoe UI"
+                                               TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ══════════════════════════════════
                      PAGE 6: REPORTES / POWER BI
                 ══════════════════════════════════ -->
                 <ScrollViewer x:Name="pageReportes"
@@ -1359,6 +1507,49 @@
                                 </Button>
                             </Grid>
                         </Border>
+
+                        <!-- Dashboard local simulado con los 200 registros mock -->
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.25*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock Text="Consumo histórico por dispositivo"
+                                               FontSize="14" FontWeight="SemiBold"
+                                               Foreground="#C8CCCA"
+                                               FontFamily="Segoe UI"
+                                               Margin="0,0,0,14"/>
+                                    <StackPanel x:Name="pbiDeviceBarsPanel"/>
+                                </StackPanel>
+                            </Border>
+
+                            <StackPanel Grid.Column="2">
+                                <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                                    <StackPanel>
+                                        <TextBlock Text="Horas pico de consumo"
+                                                   FontSize="14" FontWeight="SemiBold"
+                                                   Foreground="#C8CCCA"
+                                                   FontFamily="Segoe UI"
+                                                   Margin="0,0,0,14"/>
+                                        <StackPanel x:Name="pbiPeakHoursPanel"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Card}">
+                                    <StackPanel>
+                                        <TextBlock Text="Participación por dispositivo"
+                                                   FontSize="14" FontWeight="SemiBold"
+                                                   Foreground="#C8CCCA"
+                                                   FontFamily="Segoe UI"
+                                                   Margin="0,0,0,14"/>
+                                        <WrapPanel x:Name="pbiDeviceSharePanel"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
 
                         <!-- WebView2 Power BI -->
                         <Border Background="#0A0D12"
@@ -1723,6 +1914,404 @@ URL local HTML generada con los datos del dataset SQL.
                                            FontFamily="Segoe UI"
                                            Margin="0,14,0,0"
                                            TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- ══════════════════════════════════════════
+                             MANUAL DE USUARIO
+                        ══════════════════════════════════════════ -->
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                            <StackPanel>
+
+                                <!-- Encabezado del manual -->
+                                <Grid Margin="0,0,0,20">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="📖 Manual de Usuario — EcoVolt"
+                                                   FontSize="15" FontWeight="SemiBold"
+                                                   Foreground="#C8CCCA"
+                                                   FontFamily="Segoe UI"/>
+                                        <TextBlock Text="Guía completa de uso del sistema de monitoreo eléctrico"
+                                                   FontSize="11" Foreground="#4A6055"
+                                                   FontFamily="Segoe UI"
+                                                   Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="1"
+                                            Background="#0D1E14"
+                                            BorderBrush="#1A3A24"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Padding="12,5,12,5"
+                                            VerticalAlignment="Center">
+                                        <TextBlock Text="v 2.0"
+                                                   FontSize="11" FontWeight="SemiBold"
+                                                   Foreground="#32A76B"
+                                                   FontFamily="Segoe UI"/>
+                                    </Border>
+                                </Grid>
+
+                                <Rectangle Height="1" Fill="#1C2128" Margin="0,0,0,20"/>
+
+                                <!-- Propósito -->
+                                <Border Background="#0A1A14"
+                                        BorderBrush="#1A3A28"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Padding="16,12,16,12"
+                                        Margin="0,0,0,16">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                            <TextBlock Text="🎯" FontSize="14" Margin="0,0,8,0"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="PROPÓSITO DEL SISTEMA"
+                                                       FontSize="10" FontWeight="SemiBold"
+                                                       Foreground="#32A76B" FontFamily="Segoe UI"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock TextWrapping="Wrap"
+                                                   FontSize="12" Foreground="#9EAAA4"
+                                                   FontFamily="Segoe UI" LineHeight="20">
+EcoVolt es un sistema de monitoreo de consumo eléctrico. La aplicación permite visualizar y analizar los datos de consumo recolectados a través del multímetro centralizado instalado en la caja eléctrica principal, brindando información clara para la toma de decisiones energéticas.
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Sección 1 — Requisitos -->
+                                <StackPanel Margin="0,0,0,16">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                        <Border Background="#1B2A3A"
+                                                CornerRadius="5"
+                                                Padding="8,3,8,3"
+                                                Margin="0,0,10,0">
+                                            <TextBlock Text="1"
+                                                       FontSize="11" FontWeight="Bold"
+                                                       Foreground="#3498DB"
+                                                       FontFamily="Segoe UI"/>
+                                        </Border>
+                                        <TextBlock Text="Requisitos del Sistema"
+                                                   FontSize="13" FontWeight="SemiBold"
+                                                   Foreground="#C8CCCA"
+                                                   FontFamily="Segoe UI"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <Grid Margin="0,0,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="18"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="6"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="6"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Ellipse Grid.Row="0" Grid.Column="0"
+                                                 Width="5" Height="5"
+                                                 Fill="#3498DB"
+                                                 VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                                   FontSize="12" Foreground="#9EAAA4"
+                                                   FontFamily="Segoe UI">
+                                            <Run FontWeight="SemiBold" Foreground="#C8CCCA">Sistema Operativo:</Run>
+                                            <Run>Windows (Aplicación de escritorio WPF).</Run>
+                                        </TextBlock>
+                                        <Ellipse Grid.Row="2" Grid.Column="0"
+                                                 Width="5" Height="5"
+                                                 Fill="#3498DB"
+                                                 VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1"
+                                                   FontSize="12" Foreground="#9EAAA4"
+                                                   FontFamily="Segoe UI">
+                                            <Run FontWeight="SemiBold" Foreground="#C8CCCA">Base de datos:</Run>
+                                            <Run>Conexión activa a SQL Server (instancia .\SQLEXPRESS).</Run>
+                                        </TextBlock>
+                                        <Ellipse Grid.Row="4" Grid.Column="0"
+                                                 Width="5" Height="5"
+                                                 Fill="#3498DB"
+                                                 VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Row="4" Grid.Column="1"
+                                                   FontSize="12" Foreground="#9EAAA4"
+                                                   FontFamily="Segoe UI">
+                                            <Run FontWeight="SemiBold" Foreground="#C8CCCA">Conectividad:</Run>
+                                            <Run>Conexión a internet para la carga y actualización de reportes Power BI.</Run>
+                                        </TextBlock>
+                                    </Grid>
+                                </StackPanel>
+
+                                <Rectangle Height="1" Fill="#161B22" Margin="0,0,0,16"/>
+
+                                <!-- Sección 2 — Acceso -->
+                                <StackPanel Margin="0,0,0,16">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                        <Border Background="#1A1A2E"
+                                                CornerRadius="5"
+                                                Padding="8,3,8,3"
+                                                Margin="0,0,10,0">
+                                            <TextBlock Text="2"
+                                                       FontSize="11" FontWeight="Bold"
+                                                       Foreground="#9B59B6"
+                                                       FontFamily="Segoe UI"/>
+                                        </Border>
+                                        <TextBlock Text="Acceso a la Aplicación  —  RegisterWindow"
+                                                   FontSize="13" FontWeight="SemiBold"
+                                                   Foreground="#C8CCCA"
+                                                   FontFamily="Segoe UI"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock TextWrapping="Wrap"
+                                               FontSize="12" Foreground="#7D8590"
+                                               FontFamily="Segoe UI"
+                                               Margin="0,0,0,10">
+Al ejecutar el programa, la primera interfaz visible es la ventana de registro y acceso.
+                                    </TextBlock>
+                                    <Grid Margin="0,0,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="18"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="8"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="8"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Ellipse Grid.Row="0" Grid.Column="0"
+                                                 Width="5" Height="5"
+                                                 Fill="#9B59B6"
+                                                 VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                                   FontSize="12" Foreground="#9EAAA4"
+                                                   FontFamily="Segoe UI" TextWrapping="Wrap">
+                                            <Run FontWeight="SemiBold" Foreground="#C8CCCA">Ingreso de Credenciales:</Run>
+                                            <Run>Usa los campos de texto para ingresar tu información de usuario registrada.</Run>
+                                        </TextBlock>
+                                        <Ellipse Grid.Row="2" Grid.Column="0"
+                                                 Width="5" Height="5"
+                                                 Fill="#9B59B6"
+                                                 VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1"
+                                                   FontSize="12" Foreground="#9EAAA4"
+                                                   FontFamily="Segoe UI" TextWrapping="Wrap">
+                                            <Run FontWeight="SemiBold" Foreground="#C8CCCA">Registro:</Run>
+                                            <Run>Si eres usuario nuevo, completa los datos solicitados para generar tu perfil en el sistema.</Run>
+                                        </TextBlock>
+                                        <Ellipse Grid.Row="4" Grid.Column="0"
+                                                 Width="5" Height="5"
+                                                 Fill="#9B59B6"
+                                                 VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Row="4" Grid.Column="1"
+                                                   FontSize="12" Foreground="#9EAAA4"
+                                                   FontFamily="Segoe UI" TextWrapping="Wrap">
+                                            <Run FontWeight="SemiBold" Foreground="#C8CCCA">Validación:</Run>
+                                            <Run>El sistema verifica la información. Una vez confirmada la autenticación, la aplicación redirige automáticamente al Panel de Control.</Run>
+                                        </TextBlock>
+                                    </Grid>
+                                </StackPanel>
+
+                                <Rectangle Height="1" Fill="#161B22" Margin="0,0,0,16"/>
+
+                                <!-- Sección 3 — Panel de Control -->
+                                <StackPanel Margin="0,0,0,16">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                        <Border Background="#1B3A2A"
+                                                CornerRadius="5"
+                                                Padding="8,3,8,3"
+                                                Margin="0,0,10,0">
+                                            <TextBlock Text="3"
+                                                       FontSize="11" FontWeight="Bold"
+                                                       Foreground="#32A76B"
+                                                       FontFamily="Segoe UI"/>
+                                        </Border>
+                                        <TextBlock Text="Panel de Control  —  DashboardWindow"
+                                                   FontSize="13" FontWeight="SemiBold"
+                                                   Foreground="#C8CCCA"
+                                                   FontFamily="Segoe UI"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock TextWrapping="Wrap"
+                                               FontSize="12" Foreground="#7D8590"
+                                               FontFamily="Segoe UI"
+                                               Margin="0,0,0,10">
+Esta es la interfaz principal de monitoreo, diseñada para ofrecer una vista integral del consumo general.
+                                    </TextBlock>
+
+                                    <!-- Sub-items del panel -->
+                                    <Grid Margin="0,0,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="18"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="10"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="10"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Ellipse Grid.Row="0" Grid.Column="0"
+                                                 Width="5" Height="5"
+                                                 Fill="#32A76B"
+                                                 VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                                   FontSize="12" Foreground="#9EAAA4"
+                                                   FontFamily="Segoe UI" TextWrapping="Wrap">
+                                            <Run FontWeight="SemiBold" Foreground="#C8CCCA">Tableros Interactivos (Power BI):</Run>
+                                            <Run>En el área principal encontrarás dashboards detallados que traducen las lecturas brutas de la caja eléctrica principal en gráficos fáciles de interpretar.</Run>
+                                        </TextBlock>
+                                        <Ellipse Grid.Row="2" Grid.Column="0"
+                                                 Width="5" Height="5"
+                                                 Fill="#32A76B"
+                                                 VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1"
+                                                   FontSize="12" Foreground="#9EAAA4"
+                                                   FontFamily="Segoe UI" TextWrapping="Wrap">
+                                            <Run FontWeight="SemiBold" Foreground="#C8CCCA">Interacción con los Datos:</Run>
+                                            <Run>Filtra la información por periodos específicos (días, semanas o meses) y analiza el comportamiento del voltaje y la corriente a lo largo del tiempo.</Run>
+                                        </TextBlock>
+                                        <Ellipse Grid.Row="4" Grid.Column="0"
+                                                 Width="5" Height="5"
+                                                 Fill="#32A76B"
+                                                 VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Row="4" Grid.Column="1"
+                                                   FontSize="12" Foreground="#9EAAA4"
+                                                   FontFamily="Segoe UI" TextWrapping="Wrap">
+                                            <Run FontWeight="SemiBold" Foreground="#C8CCCA">Navegación:</Run>
+                                            <Run>Usa los controles del sidebar para recargar la vista, maximizar el panel de métricas o retornar a la pantalla de inicio cuando sea necesario.</Run>
+                                        </TextBlock>
+                                    </Grid>
+
+                                    <!-- Módulos disponibles -->
+                                    <Border Background="#0D1117"
+                                            BorderBrush="#1C2128"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Padding="14,12,14,12"
+                                            Margin="0,14,0,0">
+                                        <StackPanel>
+                                            <TextBlock Text="MÓDULOS DISPONIBLES EN EL SIDEBAR"
+                                                       FontSize="9.5" FontWeight="SemiBold"
+                                                       Foreground="#4A6055" FontFamily="Segoe UI"
+                                                       Margin="0,0,0,10"/>
+                                            <WrapPanel>
+                                                <Border Background="#0D1E14" BorderBrush="#1A3A24" BorderThickness="1"
+                                                        CornerRadius="6" Padding="10,4,10,4" Margin="0,0,8,6">
+                                                    <TextBlock Text="🏠  Inicio" FontSize="11" Foreground="#32A76B" FontFamily="Segoe UI"/>
+                                                </Border>
+                                                <Border Background="#161B22" BorderBrush="#1C2128" BorderThickness="1"
+                                                        CornerRadius="6" Padding="10,4,10,4" Margin="0,0,8,6">
+                                                    <TextBlock Text="⚡  Consumo" FontSize="11" Foreground="#7D8590" FontFamily="Segoe UI"/>
+                                                </Border>
+                                                <Border Background="#161B22" BorderBrush="#1C2128" BorderThickness="1"
+                                                        CornerRadius="6" Padding="10,4,10,4" Margin="0,0,8,6">
+                                                    <TextBlock Text="📋  Historial" FontSize="11" Foreground="#7D8590" FontFamily="Segoe UI"/>
+                                                </Border>
+                                                <Border Background="#161B22" BorderBrush="#1C2128" BorderThickness="1"
+                                                        CornerRadius="6" Padding="10,4,10,4" Margin="0,0,8,6">
+                                                    <TextBlock Text="🔔  Alertas" FontSize="11" Foreground="#7D8590" FontFamily="Segoe UI"/>
+                                                </Border>
+                                                <Border Background="#161B22" BorderBrush="#1C2128" BorderThickness="1"
+                                                        CornerRadius="6" Padding="10,4,10,4" Margin="0,0,8,6">
+                                                    <TextBlock Text="🔮  Predicciones" FontSize="11" Foreground="#7D8590" FontFamily="Segoe UI"/>
+                                                </Border>
+                                                <Border Background="#161B22" BorderBrush="#1C2128" BorderThickness="1"
+                                                        CornerRadius="6" Padding="10,4,10,4" Margin="0,0,8,6">
+                                                    <TextBlock Text="⏱  Multímetro" FontSize="11" Foreground="#7D8590" FontFamily="Segoe UI"/>
+                                                </Border>
+                                                <Border Background="#161B22" BorderBrush="#1C2128" BorderThickness="1"
+                                                        CornerRadius="6" Padding="10,4,10,4" Margin="0,0,8,6">
+                                                    <TextBlock Text="📈  Reportes / Power BI" FontSize="11" Foreground="#7D8590" FontFamily="Segoe UI"/>
+                                                </Border>
+                                                <Border Background="#161B22" BorderBrush="#1C2128" BorderThickness="1"
+                                                        CornerRadius="6" Padding="10,4,10,4" Margin="0,0,8,6">
+                                                    <TextBlock Text="🔌  Dispositivos" FontSize="11" Foreground="#7D8590" FontFamily="Segoe UI"/>
+                                                </Border>
+                                            </WrapPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+
+                                <Rectangle Height="1" Fill="#161B22" Margin="0,16,0,16"/>
+
+                                <!-- Sección 4 — Recomendaciones -->
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                        <Border Background="#1A1000"
+                                                CornerRadius="5"
+                                                Padding="8,3,8,3"
+                                                Margin="0,0,10,0">
+                                            <TextBlock Text="4"
+                                                       FontSize="11" FontWeight="Bold"
+                                                       Foreground="#F97316"
+                                                       FontFamily="Segoe UI"/>
+                                        </Border>
+                                        <TextBlock Text="Recomendaciones y Buenas Prácticas"
+                                                   FontSize="13" FontWeight="SemiBold"
+                                                   Foreground="#C8CCCA"
+                                                   FontFamily="Segoe UI"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="14"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Tip Sincronización -->
+                                        <Border Grid.Column="0"
+                                                Background="#1A0D00"
+                                                BorderBrush="#3A2200"
+                                                BorderThickness="1"
+                                                CornerRadius="8"
+                                                Padding="14,12,14,12">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                                    <TextBlock Text="📡" FontSize="16" Margin="0,0,8,0"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBlock Text="SINCRONIZACIÓN"
+                                                               FontSize="9.5" FontWeight="SemiBold"
+                                                               Foreground="#F97316" FontFamily="Segoe UI"
+                                                               VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                                <TextBlock TextWrapping="Wrap"
+                                                           FontSize="11" Foreground="#7D8590"
+                                                           FontFamily="Segoe UI" LineHeight="18">
+Dado que los tableros reflejan el uso de la red eléctrica en tiempo real, asegúrate de mantener una conexión a internet estable para que los reportes de Power BI se actualicen correctamente.
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- Tip Seguridad -->
+                                        <Border Grid.Column="2"
+                                                Background="#0A1A14"
+                                                BorderBrush="#1A3A28"
+                                                BorderThickness="1"
+                                                CornerRadius="8"
+                                                Padding="14,12,14,12">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                                    <TextBlock Text="🔒" FontSize="16" Margin="0,0,8,0"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBlock Text="SEGURIDAD"
+                                                               FontSize="9.5" FontWeight="SemiBold"
+                                                               Foreground="#32A76B" FontFamily="Segoe UI"
+                                                               VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                                <TextBlock TextWrapping="Wrap"
+                                                           FontSize="11" Foreground="#7D8590"
+                                                           FontFamily="Segoe UI" LineHeight="18">
+Recuerda cerrar la sesión mediante el botón "Cerrar sesión" del sidebar al finalizar la consulta, para proteger los datos de consumo de tu instalación.
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+                                </StackPanel>
+
                             </StackPanel>
                         </Border>
 

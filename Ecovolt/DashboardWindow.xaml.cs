@@ -24,6 +24,7 @@ namespace EcoVolt
     {
         // ─── ESTADO INTERNO ──────────────────────────────────────────────
         private System.Windows.Threading.DispatcherTimer _timer;
+        private System.Windows.Threading.DispatcherTimer _meterTimer;
         private int _timerTick = 0;
 
         private List<DeviceConsumption> _devices = new List<DeviceConsumption>();
@@ -98,7 +99,15 @@ namespace EcoVolt
             };
             _timer.Start();
 
+            _meterTimer = new System.Windows.Threading.DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(2)
+            };
+            _meterTimer.Tick += (s, a) => BuildMultimeterReading();
+            _meterTimer.Start();
+
             LoadAllData();
+            BuildMultimeterReading();
         }
 
         // ═══════════════════════════════════════════════════════════════════
@@ -148,6 +157,7 @@ namespace EcoVolt
                     BuildConsumoTable();
                     BuildHistorialTable();
                     BuildPrediccionesPage();
+                    BuildPowerBiSimulation();
                     BuildDevicesDetail();
                     BuildHistorialSummary();
                     BuildAlertasSummary();
@@ -634,6 +644,155 @@ namespace EcoVolt
         }
 
         // ═══════════════════════════════════════════════════════════════════
+        // REPORTES — Dashboard local tipo Power BI usando los 200 mock
+        // ═══════════════════════════════════════════════════════════════════
+        private void BuildPowerBiSimulation()
+        {
+            if (pbiDeviceBarsPanel == null || pbiPeakHoursPanel == null || pbiDeviceSharePanel == null)
+                return;
+
+            pbiDeviceBarsPanel.Children.Clear();
+            pbiPeakHoursPanel.Children.Clear();
+            pbiDeviceSharePanel.Children.Clear();
+
+            var devices = _devices != null && _devices.Count > 0
+                ? _devices
+                : DatabaseService.GetConsumoDispositivos("mes");
+            double maxDevice = devices.Count > 0 ? devices.Max(d => d.ConsumoKWh) : 1;
+
+            foreach (var d in devices)
+                pbiDeviceBarsPanel.Children.Add(BuildMetricBar(
+                    d.Dispositivo,
+                    string.Format("{0:0.0} kWh", d.ConsumoKWh),
+                    maxDevice > 0 ? d.ConsumoKWh / maxDevice : 0,
+                    d.Color));
+
+            var peaks = _hourly != null ? _hourly.OrderByDescending(h => h.Consumo).Take(6).ToList() : new List<HourlyData>();
+            double maxHour = peaks.Count > 0 ? peaks.Max(h => h.Consumo) : 1;
+            foreach (var h in peaks.OrderBy(h => h.Hora))
+                pbiPeakHoursPanel.Children.Add(BuildMetricBar(
+                    h.HoraLabel,
+                    string.Format("{0:0.00} kWh", h.Consumo),
+                    maxHour > 0 ? h.Consumo / maxHour : 0,
+                    "#308BB1"));
+
+            foreach (var d in devices)
+            {
+                var card = new Border
+                {
+                    Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0D1117")),
+                    BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1C2128")),
+                    BorderThickness = new Thickness(1, 1, 1, 1),
+                    CornerRadius = new CornerRadius(8),
+                    Padding = new Thickness(10, 8, 10, 8),
+                    Margin = new Thickness(0, 0, 8, 8),
+                    Width = 132
+                };
+                var sp = new StackPanel();
+                sp.Children.Add(new TextBlock
+                {
+                    Text = string.Format("{0:0.0}%", d.Porcentaje),
+                    FontSize = 20,
+                    FontWeight = FontWeights.Black,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(d.Color)),
+                    FontFamily = new FontFamily("Segoe UI Black")
+                });
+                sp.Children.Add(new TextBlock
+                {
+                    Text = d.Dispositivo,
+                    FontSize = 10,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7D8590")),
+                    FontFamily = new FontFamily("Segoe UI"),
+                    TextTrimming = TextTrimming.CharacterEllipsis
+                });
+                card.Child = sp;
+                pbiDeviceSharePanel.Children.Add(card);
+            }
+        }
+
+        private UIElement BuildMetricBar(string label, string value, double ratio, string color)
+        {
+            var row = new Grid { Margin = new Thickness(0, 0, 0, 10) };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
+            row.ColumnDefinitions.Add(new ColumnDefinition());
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(92) });
+
+            var name = new TextBlock
+            {
+                Text = label,
+                FontSize = 12,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#C8CCCA")),
+                FontFamily = new FontFamily("Segoe UI"),
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            Grid.SetColumn(name, 0);
+
+            var track = new Border
+            {
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0D1117")),
+                CornerRadius = new CornerRadius(6),
+                Height = 10,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(10, 0, 10, 0)
+            };
+            var bar = new Border
+            {
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color)),
+                CornerRadius = new CornerRadius(6),
+                Width = Math.Max(8, 260 * Math.Max(0, Math.Min(1, ratio))),
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+            track.Child = bar;
+            Grid.SetColumn(track, 1);
+
+            var val = new TextBlock
+            {
+                Text = value,
+                FontSize = 11,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4A6055")),
+                FontFamily = new FontFamily("Segoe UI"),
+                TextAlignment = TextAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            Grid.SetColumn(val, 2);
+
+            row.Children.Add(name);
+            row.Children.Add(track);
+            row.Children.Add(val);
+            return row;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // MULTÍMETRO — Lectura actual y predicción de factura
+        // ═══════════════════════════════════════════════════════════════════
+        private void BuildMultimeterReading()
+        {
+            if (meterDevicePanel == null) return;
+
+            var reading = MockEnergyRepository.GenerateLiveReading();
+            lblMeterWatts.Text = string.Format("{0:N0} W", reading.TotalWatts);
+            lblMeterAmps.Text = string.Format("{0:0.00} A", reading.TotalAmperaje);
+            lblMeterVolts.Text = string.Format("{0:0.0} V", reading.VoltajePromedio);
+            lblMeterBill.Text = string.Format("$ {0:N0}", reading.CostoEstimadoMesCOP);
+            lblMeterUpdated.Text = "Última lectura: " + DateTime.Now.ToString("HH:mm:ss");
+            lblMeterForecast.Text = string.Format(
+                "Consumo mensual estimado: {0:0.0} kWh. Con tarifa de $ {1:N0} COP/kWh, la factura proyectada es $ {2:N0} COP.",
+                reading.ConsumoEstimadoMesKWh,
+                MockEnergyRepository.TarifaCopPorKWh,
+                reading.CostoEstimadoMesCOP);
+
+            meterDevicePanel.Children.Clear();
+            double max = reading.Dispositivos.Count > 0 ? reading.Dispositivos.Max(d => d.Watts) : 1;
+            foreach (var d in reading.Dispositivos)
+                meterDevicePanel.Children.Add(BuildMetricBar(
+                    d.Dispositivo,
+                    string.Format("{0:0} W · {1:0.00} A", d.Watts, d.Amperaje),
+                    max > 0 ? d.Watts / max : 0,
+                    d.Color));
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
         // DISPOSITIVOS — Tabla + resumen
         // ═══════════════════════════════════════════════════════════════════
         private void BuildDevicesDetail()
@@ -666,6 +825,7 @@ namespace EcoVolt
             pageHistorial.Visibility = Visibility.Collapsed;
             pageAlertas.Visibility = Visibility.Collapsed;
             pagePredicciones.Visibility = Visibility.Collapsed;
+            pageMultimetro.Visibility = Visibility.Collapsed;
             pageReportes.Visibility = Visibility.Collapsed;
             pageDispositivos.Visibility = Visibility.Collapsed;
             pageConfig.Visibility = Visibility.Collapsed;
@@ -679,6 +839,7 @@ namespace EcoVolt
             btnNavHistorial.Style = (Style)FindResource("BtnNav");
             btnNavAlertas.Style = (Style)FindResource("BtnNav");
             btnNavPredicciones.Style = (Style)FindResource("BtnNav");
+            btnNavMultimetro.Style = (Style)FindResource("BtnNav");
             btnNavReportes.Style = (Style)FindResource("BtnNav");
             btnNavDispositivos.Style = (Style)FindResource("BtnNav");
             btnNavConfig.Style = (Style)FindResource("BtnNav");
@@ -720,6 +881,14 @@ namespace EcoVolt
             lblPageTitle.Text = "Predicciones";
         }
 
+        private void NavMultimetro_Click(object sender, RoutedEventArgs e)
+        {
+            SetNavActive(btnNavMultimetro);
+            ShowPage(pageMultimetro);
+            lblPageTitle.Text = "Multímetro Digital";
+            BuildMultimeterReading();
+        }
+
         private void NavReportes_Click(object sender, RoutedEventArgs e)
         {
             SetNavActive(btnNavReportes);
@@ -753,7 +922,13 @@ namespace EcoVolt
         private void BtnRefresh_Click(object sender, RoutedEventArgs e)
         {
             LoadAllData();
+            BuildMultimeterReading();
             try { pbiViewer?.Reload(); } catch { }
+        }
+
+        private void BtnMeterRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            BuildMultimeterReading();
         }
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -764,12 +939,14 @@ namespace EcoVolt
         private void BtnClose_Click(object sender, RoutedEventArgs e)
         {
             _timer?.Stop();
+            _meterTimer?.Stop();
             Application.Current.Shutdown();
         }
 
         private void BtnLogout_Click(object sender, RoutedEventArgs e)
         {
             _timer?.Stop();
+            _meterTimer?.Stop();
             UserStore.CurrentUser = null;
             new LoginWindow().Show();
             Close();

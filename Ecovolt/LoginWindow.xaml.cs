@@ -31,6 +31,22 @@ namespace EcoVolt
             Close();
         }
 
+        private void DemoAdmin_Click(object sender, RoutedEventArgs e)
+        { FillDemoUser("admin@ecovolt.local", "Admin123"); }
+
+        private void DemoUser_Click(object sender, RoutedEventArgs e)
+        { FillDemoUser("usuario@ecovolt.local", "Usuario123"); }
+
+        private void DemoTech_Click(object sender, RoutedEventArgs e)
+        { FillDemoUser("tecnico@ecovolt.local", "Tecnico123"); }
+
+        private void FillDemoUser(string email, string password)
+        {
+            txtEmail.Text = email;
+            txtPwd.Password = password;
+            ShowMsg("Credenciales demo cargadas. Presiona Iniciar sesión.", false);
+        }
+
         private void LnkRegister_Click(object sender, MouseButtonEventArgs e)
         { new RegisterWindow().Show(); Close(); }
 

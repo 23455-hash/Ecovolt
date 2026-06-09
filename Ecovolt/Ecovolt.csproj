@@ -173,6 +173,7 @@
     <Compile Include="DashboardWindow.xaml.cs">
       <DependentUpon>DashboardWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\ConsumoHistoricoMock.cs" />
     <Compile Include="Models\ConsumoDispositivo.cs" />
     <Compile Include="Models\DatabaseService.cs" />
     <Compile Include="Models\PrediccionItem.cs" />
@@ -225,6 +226,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Scripts\SeedHistorialConsumoElectrico.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

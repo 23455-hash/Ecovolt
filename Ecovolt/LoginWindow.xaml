@@ -170,7 +170,24 @@
                                    Foreground="#D7DAD8" FontFamily="Segoe UI" Margin="0,0,0,6"/>
                         <TextBlock Text="Ingresa tus credenciales para acceder a tu panel"
                                    FontSize="13" Foreground="#7D8590"
-                                   FontFamily="Segoe UI" Margin="0,0,0,36"/>
+                                   FontFamily="Segoe UI" Margin="0,0,0,18"/>
+
+                        <TextBlock Text="ACCESO RÁPIDO DEMO" FontSize="10.5" FontWeight="SemiBold"
+                                   Foreground="#308BB1" FontFamily="Segoe UI" Margin="2,0,0,8"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
+                            <Button Content="Administrador"
+                                    Width="138" Height="34" Margin="0,0,8,0"
+                                    Click="DemoAdmin_Click"
+                                    Style="{StaticResource BtnGhost}"/>
+                            <Button Content="Usuario"
+                                    Width="104" Height="34" Margin="0,0,8,0"
+                                    Click="DemoUser_Click"
+                                    Style="{StaticResource BtnGhost}"/>
+                            <Button Content="Técnico"
+                                    Width="104" Height="34"
+                                    Click="DemoTech_Click"
+                                    Style="{StaticResource BtnGhost}"/>
+                        </StackPanel>
 
                         <!-- Email -->
                         <TextBlock Text="CORREO ELECTRÓNICO" FontSize="10.5" FontWeight="SemiBold"

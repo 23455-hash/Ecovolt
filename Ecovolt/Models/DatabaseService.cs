@@ -924,95 +924,124 @@ namespace EcoVolt.Models
         // ═══════════════════════════════════════════════════════════════════
         private static KpiData GetKpisMock()
         {
+            var registros = MockEnergyRepository.GetHistorial();
+            double totalKwh = registros.Sum(r => r.ConsumoKWh);
+            double promedioWatts = registros.Average(r => r.ConsumoWatts);
+            int alertas = registros.Count(r => r.EstadoConsumo != "Normal");
+
             return new KpiData
             {
-                PotenciaKW = 4.4,
-                ConsumoKWh = 18.7,
-                ConsumoHoyKWh = 18.7,
-                CostoMesCOP = 14960,
-                PromedioWatts = 850,
-                DispositivosActivos = 5,
-                AlertasActivas = 3,
-                EstadoGeneral = "Advertencia",
-                ColorEstado = "#F97316"
+                PotenciaKW = registros.Max(r => r.ConsumoWatts) / 1000.0,
+                ConsumoKWh = totalKwh,
+                ConsumoHoyKWh = registros.Where(r => r.FechaHora.Date == registros.Max(x => x.FechaHora).Date).Sum(r => r.ConsumoKWh),
+                CostoMesCOP = totalKwh * MockEnergyRepository.TarifaCopPorKWh,
+                PromedioWatts = promedioWatts,
+                DispositivosActivos = MockEnergyRepository.GetEquipos().Count(e => e.Estado == "Activo"),
+                AlertasActivas = alertas,
+                EstadoGeneral = alertas > 12 ? "Advertencia" : "Normal",
+                ColorEstado = alertas > 12 ? "#F97316" : "#32A76B"
             };
         }
 
         private static List<DeviceConsumption> GetDispositivosMock()
         {
-            return new List<DeviceConsumption>
-            {
-                new DeviceConsumption { Dispositivo="Aire Acond.",    Espacio="Salón A",  Estado="Activo",   ConsumoKWh=6.2, Porcentaje=45.5, PromedioWatts=1400, ConsumoNormalWatts=1380, Color="#308BB1" },
-                new DeviceConsumption { Dispositivo="Refrigerador",   Espacio="Casa 1",   Estado="Activo",   ConsumoKWh=3.4, Porcentaje=25.0, PromedioWatts=350,  ConsumoNormalWatts=340,  Color="#32A76B" },
-                new DeviceConsumption { Dispositivo="Servidor Local",  Espacio="Lab IoT",  Estado="Activo",   ConsumoKWh=2.1, Porcentaje=15.4, PromedioWatts=490,  ConsumoNormalWatts=480,  Color="#9B59B6" },
-                new DeviceConsumption { Dispositivo="Computador",      Espacio="Sistemas", Estado="Activo",   ConsumoKWh=1.8, Porcentaje=13.2, PromedioWatts=250,  ConsumoNormalWatts=245,  Color="#F39C12" },
-                new DeviceConsumption { Dispositivo="Iluminación",     Espacio="Pasillo",  Estado="Inactivo", ConsumoKWh=0.1, Porcentaje=0.9,  PromedioWatts=50,   ConsumoNormalWatts=50,   Color="#E91E63" }
-            };
+            string[] colors = { "#308BB1", "#32A76B", "#F39C12", "#9B59B6", "#E91E63" };
+            var equipos = MockEnergyRepository.GetEquipos();
+            var grupos = MockEnergyRepository.GetHistorial()
+                .GroupBy(r => r.Dispositivo)
+                .Select((g, i) =>
+                {
+                    var equipo = equipos.FirstOrDefault(e => e.Nombre == g.Key);
+                    return new DeviceConsumption
+                    {
+                        Dispositivo = g.Key,
+                        Espacio = equipo != null ? equipo.Espacio : "Demo",
+                        Estado = equipo != null ? equipo.Estado : "Activo",
+                        ConsumoKWh = Math.Round(g.Sum(x => x.ConsumoKWh), 2),
+                        PromedioWatts = Math.Round(g.Average(x => x.ConsumoWatts), 2),
+                        ConsumoNormalWatts = equipo != null ? equipo.ConsumoNormalWatts : g.Average(x => x.ConsumoNormalWatts),
+                        Color = colors[i % colors.Length]
+                    };
+                })
+                .OrderByDescending(d => d.ConsumoKWh)
+                .ToList();
+
+            double total = grupos.Sum(d => d.ConsumoKWh);
+            foreach (var d in grupos)
+                d.Porcentaje = total > 0 ? d.ConsumoKWh / total * 100 : 0;
+            return grupos;
         }
 
         private static List<RegistroConsumoRow> GetRegistroMock()
         {
-            return new List<RegistroConsumoRow>
-            {
-                new RegistroConsumoRow { RegistroID=1, Equipo="Refrigerador",  Espacio="Casa Principal", TipoEspacio="Casa",            Fecha="01/04/2026", Hora="10:00", FechaHora="01/04/2026 10:00", Voltaje=120.0, ConsumoWatts=1326.42, ConsumoNormalWatts=350,  EstadoConsumo="Crítico"     },
-                new RegistroConsumoRow { RegistroID=2, Equipo="Servidor Local", Espacio="Lab IoT",       TipoEspacio="Salón de clases", Fecha="01/04/2026", Hora="09:30", FechaHora="01/04/2026 09:30", Voltaje=120.0, ConsumoWatts=456.95,  ConsumoNormalWatts=480,  EstadoConsumo="Normal"      },
-                new RegistroConsumoRow { RegistroID=3, Equipo="Computador",     Espacio="Sistemas",      TipoEspacio="Salón de clases", Fecha="01/04/2026", Hora="09:00", FechaHora="01/04/2026 09:00", Voltaje=120.0, ConsumoWatts=224.58,  ConsumoNormalWatts=245,  EstadoConsumo="Normal"      },
-                new RegistroConsumoRow { RegistroID=4, Equipo="Aire Acond.",    Espacio="Salón A",       TipoEspacio="Salón de clases", Fecha="01/04/2026", Hora="08:30", FechaHora="01/04/2026 08:30", Voltaje=120.0, ConsumoWatts=1108.75, ConsumoNormalWatts=1380, EstadoConsumo="Normal"      },
-                new RegistroConsumoRow { RegistroID=5, Equipo="Aire Acond.",    Espacio="Salón B",       TipoEspacio="Salón de clases", Fecha="01/04/2026", Hora="01:15", FechaHora="01/04/2026 01:15", Voltaje=120.0, ConsumoWatts=3819.00, ConsumoNormalWatts=1628, EstadoConsumo="Crítico"     }
-            };
+            return MockEnergyRepository.GetHistorial()
+                .Select(r => new RegistroConsumoRow
+                {
+                    RegistroID = r.RegistroID,
+                    Equipo = r.Dispositivo,
+                    Espacio = r.Espacio,
+                    TipoEspacio = r.TipoEspacio,
+                    Fecha = r.Fecha,
+                    Hora = r.Hora,
+                    FechaHora = r.FechaHoraTexto,
+                    Voltaje = r.Voltaje,
+                    ConsumoWatts = r.ConsumoWatts,
+                    ConsumoNormalWatts = r.ConsumoNormalWatts,
+                    EstadoConsumo = r.EstadoConsumo
+                })
+                .ToList();
         }
 
         private static List<EquipoRow> GetEquiposMock()
         {
-            return new List<EquipoRow>
-            {
-                new EquipoRow { EquipoID=1, Nombre="Refrigerador Mod-61",  Espacio="Casa Principal", TipoEspacio="Casa",            ConsumoNormalWatts=351, ConsumoMaxWatts=456,  Estado="Activo"        },
-                new EquipoRow { EquipoID=2, Nombre="Servidor Local Mod-44", Espacio="Lab IoT",       TipoEspacio="Salón de clases", ConsumoNormalWatts=482, ConsumoMaxWatts=627,  Estado="Activo"        },
-                new EquipoRow { EquipoID=3, Nombre="Horno Microondas",      Espacio="Cocina 1",      TipoEspacio="Casa",            ConsumoNormalWatts=1099,ConsumoMaxWatts=1429, Estado="Inactivo"      },
-                new EquipoRow { EquipoID=4, Nombre="Computador Escritorio", Espacio="Salón B",       TipoEspacio="Salón de clases", ConsumoNormalWatts=244, ConsumoMaxWatts=317,  Estado="Activo"        },
-                new EquipoRow { EquipoID=5, Nombre="Aire Acond. Mod-25",    Espacio="Salón A",       TipoEspacio="Salón de clases", ConsumoNormalWatts=1628,ConsumoMaxWatts=2116, Estado="Mantenimiento" }
-            };
+            return MockEnergyRepository.GetEquipos();
         }
 
         private static List<HourlyData> GetHorarioMock()
         {
-            double[] vals = { 0.5, 0.4, 0.3, 0.3, 0.4, 0.6, 0.9, 1.5,
-                              1.8, 2.2, 2.8, 3.0, 3.2, 3.5, 3.8, 4.1,
-                              4.4, 4.0, 3.6, 3.2, 2.8, 2.4, 2.1, 1.9 };
             var list = new List<HourlyData>();
+            var grupos = MockEnergyRepository.GetHistorial()
+                .GroupBy(r => r.FechaHora.Hour)
+                .ToDictionary(g => g.Key, g => Math.Round(g.Average(x => x.ConsumoKWh), 2));
             for (int h = 0; h < 24; h++)
-                list.Add(new HourlyData { Hora = h, Consumo = vals[h] });
+                list.Add(new HourlyData { Hora = h, Consumo = grupos.ContainsKey(h) ? grupos[h] : 0 });
             return list;
         }
 
         private static List<DatoDiario> GetDatosHistoricosMock()
         {
-            var lista = new List<DatoDiario>();
-            var baseDate = new DateTime(2026, 4, 1);
-            var rnd = new Random(42);
-            for (int i = 0; i < 10; i++)
-            {
-                lista.Add(new DatoDiario
+            DateTime baseDate = MockEnergyRepository.GetHistorial().Min(r => r.FechaHora.Date);
+            return MockEnergyRepository.GetHistorial()
+                .GroupBy(r => r.FechaHora.Date)
+                .OrderBy(g => g.Key)
+                .Select(g => new DatoDiario
                 {
-                    Fecha = baseDate.AddDays(i),
-                    ConsumoKWh = 18 + rnd.NextDouble() * 5,
-                    PromedioWatts = 850 + rnd.NextDouble() * 200,
-                    NumRegistros = 96,
-                    DiaNumero = i
-                });
-            }
-            return lista;
+                    Fecha = g.Key,
+                    ConsumoKWh = Math.Round(g.Sum(x => x.ConsumoKWh), 2),
+                    PromedioWatts = Math.Round(g.Average(x => x.ConsumoWatts), 2),
+                    NumRegistros = g.Count(),
+                    DiaNumero = (int)(g.Key - baseDate).TotalDays
+                })
+                .ToList();
         }
 
         private static List<AlertaItem> GetAlertasMock()
         {
-            return new List<AlertaItem>
-            {
-                new AlertaItem { Tipo="warning", Titulo="Pico crítico de consumo",   Descripcion="Aire Acond. Mod-25 — Registrado: 3819W / Normal: 1628W (234%)", Hora="01:15", Fecha="01/04/2026", Equipo="Aire Acond.",    Espacio="Salón A",        Resuelta=false },
-                new AlertaItem { Tipo="info",    Titulo="Voltaje inestable",          Descripcion="Refrigerador Mod-68 — Voltaje 108V detectado",                  Hora="09:30", Fecha="01/04/2026", Equipo="Refrigerador",   Espacio="Casa Principal", Resuelta=false },
-                new AlertaItem { Tipo="warning", Titulo="Sobreconsumo detectado",     Descripcion="Refrigerador Mod-61 — Registrado: 1326W / Normal: 351W (378%)", Hora="10:00", Fecha="01/04/2026", Equipo="Refrigerador",   Espacio="Casa Principal", Resuelta=false },
-                new AlertaItem { Tipo="success", Titulo="Consumo normalizado",        Descripcion="Servidor Local — Volvió a rango normal",                        Hora="22:30", Fecha="01/04/2026", Equipo="Servidor Local", Espacio="Lab IoT",        Resuelta=true  }
-            };
+            return MockEnergyRepository.GetHistorial()
+                .Where(r => r.EstadoConsumo != "Normal")
+                .Take(12)
+                .Select(r => new AlertaItem
+                {
+                    Tipo = r.EstadoConsumo == "Crítico" ? "warning" : "info",
+                    Titulo = r.EstadoConsumo == "Crítico" ? "Pico crítico de consumo" : "Sobreconsumo detectado",
+                    Descripcion = string.Format("{0}: {1:0}W / normal {2:0}W", r.Dispositivo, r.ConsumoWatts, r.ConsumoNormalWatts),
+                    Hora = r.Hora,
+                    Fecha = r.Fecha,
+                    Equipo = r.Dispositivo,
+                    Espacio = r.Espacio,
+                    Resuelta = false
+                })
+                .ToList();
         }
 
         private static List<PrediccionItem> GetPrediccionesMock()
